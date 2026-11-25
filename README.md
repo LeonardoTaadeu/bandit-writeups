@@ -28,5 +28,5 @@ All challenges belong to [OverTheWire](https://overthewire.org), a community tha
 
 ## Contact
 
-- LinkedIn: https://www.linkedin.com/in/seu-usuario
-- YouTube: https://www.youtube.com/@seu-canal
+- LinkedIn: [https://www.linkedin.com/in/leonardo-tadeu](https://www.linkedin.com/in/leonardo-tadeu-a908b2240/)
+- YouTube: [https://www.youtube.com/@krekDotSH](https://www.youtube.com/@krekDotSH)
