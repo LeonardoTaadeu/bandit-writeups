@@ -2,7 +2,7 @@
 
 My journey through the [OverTheWire Bandit](https://overthewire.org/wargames/bandit/) wargame, documented level by level in English and Portuguese.
 
-**Live site:** https://SEU-USUARIO.github.io/bandit-writeups/
+**Live site:** [https://SEU-USUARIO.github.io/bandit-writeups/](https://leonardotaadeu.github.io/bandit-writeups/)
 
 ## About this project
 
