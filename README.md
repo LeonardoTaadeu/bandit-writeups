@@ -18,12 +18,6 @@ This is not a list of answers. Each writeup focuses on the method behind the sol
 - **What I learned:** the concept behind the level and where it shows up in real security work
 - **Video:** a walkthrough of the solution
 
-## Progress
-
-- [x] Levels 0 to 22 solved
-- [ ] Writeups in progress
-- [ ] Video walkthroughs in progress
-
 ## Tools and concepts covered
 
 Linux command line, file permissions, SUID binaries, SSH key authentication, networking with `nc` and `openssl`, port scanning with `nmap`, cron jobs, and more as I progress.
