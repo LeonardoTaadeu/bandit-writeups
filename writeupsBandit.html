@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>OverTheWire Bandit — Writeups</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<!--
+  ============================================================
+  COMO EDITAR ESTE ARQUIVO
+  ============================================================
+  Tudo que você precisa mudar está no bloco <script> no final,
+  na seção "SEUS DADOS". Você não precisa mexer no CSS nem no
+  resto do código.
+
+  1. PROFILE: seu nome e links (GitHub, LinkedIn, YouTube).
+  2. SOLVED_COUNT: quantos níveis você já resolveu.
+  3. WRITEUPS: o conteúdo de cada nível, em português e inglês,
+     e o ID do vídeo do YouTube.
+
+  O ID do vídeo é o código no final do link do YouTube.
+  Exemplo: https://www.youtube.com/watch?v=dQw4w9WgXcQ
+  O ID é: dQw4w9WgXcQ
+
+  Regra do OverTheWire: NUNCA coloque senhas aqui.
+  ============================================================
+-->
+
+<style>
+:root {
+  color-scheme: light;
+  --paper: #F2F4F7;
+  --surface: #FFFFFF;
+  --ink: #17202B;
+  --muted: #586374;
+  --line: #D3D9E1;
+  --solved: #0E7A70;
+  --solved-soft: #DDF0EE;
+  --pending: #A9B2BF;
+  --code-bg: #E8ECF1;
+  --focus: #2F5BD3;
+  --font-sans: "Instrument Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --paper: #13171D;
+    --surface: #1A1F27;
+    --ink: #E4E8EE;
+    --muted: #98A3B2;
+    --line: #2B323D;
+    --solved: #3DB5A8;
+    --solved-soft: #173A37;
+    --pending: #4A5361;
+    --code-bg: #222935;
+    --focus: #7EA2FF;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --paper: #13171D;
+  --surface: #1A1F27;
+  --ink: #E4E8EE;
+  --muted: #98A3B2;
+  --line: #2B323D;
+  --solved: #3DB5A8;
+  --solved-soft: #173A37;
+  --pending: #4A5361;
+  --code-bg: #222935;
+  --focus: #7EA2FF;
+}
+html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+*, *::before, *::after { box-sizing: inherit; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; }
+img, iframe { max-width: 100%; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; border-radius: 4px; }
+
+.wrap { max-width: 68rem; margin: 0 auto; padding: 0 1.25rem; }
+
+/* Header */
+.top {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1rem; padding: 1.25rem 0; border-bottom: 1px solid var(--line);
+}
+.brand { font-weight: 600; text-decoration: none; font-size: 1rem; }
+.brand small { color: var(--muted); font-weight: 400; margin-left: .4rem; }
+.lang { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 3px; background: var(--surface); }
+.lang button {
+  font: inherit; font-size: .875rem; border: 0; background: transparent; color: var(--muted);
+  padding: .25rem .8rem; border-radius: 999px; cursor: pointer;
+}
+.lang button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+
+/* Home */
+.hero { padding: 3.5rem 0 2rem; max-width: 44rem; }
+.hero h1 {
+  font-size: clamp(2.2rem, 5vw, 3.4rem); line-height: 1.08; letter-spacing: -0.02em;
+  margin: 0 0 1.25rem; font-weight: 700;
+}
+.hero p { color: var(--muted); margin: 0 0 1rem; max-width: 38rem; }
+.links { display: flex; flex-wrap: wrap; gap: .5rem 1.25rem; margin-top: 1.5rem; }
+.links a { color: var(--ink); text-decoration-color: var(--line); text-underline-offset: 4px; font-weight: 500; }
+.links a:hover { text-decoration-color: var(--ink); }
+
+.track-head {
+  display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between;
+  gap: .75rem 2rem; margin: 2.5rem 0 1.25rem;
+}
+.track-head h2 { margin: 0; font-size: 1.35rem; }
+.progress { color: var(--muted); font-size: .95rem; }
+.progress strong { color: var(--ink); font-variant-numeric: tabular-nums; }
+
+/* The level list */
+.levels {
+  list-style: none; margin: 0; padding: 0;
+  max-width: 42rem; border-top: 1px solid var(--line);
+}
+.levels li { border-bottom: 1px solid var(--line); }
+.level-link {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  padding: .8rem .25rem; color: var(--ink); text-decoration: none;
+}
+.level-link:hover .level-name { text-decoration: underline; text-underline-offset: 4px; }
+.level-name { font-weight: 500; }
+.level-tags { display: flex; gap: .75rem; color: var(--muted); font-size: .85rem; }
+.mark { width: 1rem; height: 1rem; vertical-align: -3px; }
+
+.about {
+  margin: 3.5rem 0 0; padding: 2rem 0 0; border-top: 1px solid var(--line);
+  display: grid; gap: 2rem; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+}
+.about h3 { margin: 0 0 .5rem; font-size: 1rem; }
+.about p { margin: 0; color: var(--muted); font-size: .97rem; }
+
+footer { margin: 4rem 0 0; padding: 1.5rem 0 3rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .9rem; }
+footer p { margin: 0 0 .4rem; max-width: 46rem; }
+
+/* Level page */
+.crumbs { margin: 2rem 0 0; }
+.back {
+  font: inherit; font-size: .95rem; color: var(--muted); background: none; border: 0; padding: 0;
+  cursor: pointer; text-decoration: underline; text-underline-offset: 4px; text-decoration-color: var(--line);
+}
+.back:hover { color: var(--ink); }
+.level-head { margin: 1.25rem 0 2rem; }
+.level-head h1 { margin: 0 0 .75rem; font-size: clamp(2rem, 4.5vw, 2.9rem); letter-spacing: -0.02em; line-height: 1.1; }
+.level-head h1 .num { font-family: var(--font-mono); font-weight: 500; }
+.chips { display: flex; flex-wrap: wrap; gap: .5rem; }
+.chip {
+  font-size: .85rem; padding: .2rem .7rem; border-radius: 999px;
+  border: 1px solid var(--line); color: var(--muted); background: var(--surface);
+}
+.chip.on { background: var(--solved-soft); border-color: transparent; color: var(--solved); font-weight: 600; }
+
+.level-grid { display: grid; gap: 2.5rem; grid-template-columns: 1fr; }
+@media (min-width: 60rem) {
+  .level-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 26rem); align-items: start; }
+  .video-col { position: sticky; top: calc(1.5rem + env(safe-area-inset-top, 0px)); }
+}
+.section { margin: 0 0 2.25rem; max-width: 42rem; }
+.section h2 { font-size: 1.15rem; margin: 0 0 .6rem; }
+.section p { margin: 0 0 .75rem; }
+
+.steps { list-style: none; margin: 0; padding: 0; counter-reset: step; }
+.steps li { counter-increment: step; position: relative; padding: 0 0 1.25rem 2.4rem; }
+.steps li::before {
+  content: counter(step); position: absolute; left: 0; top: .1rem;
+  width: 1.6rem; height: 1.6rem; border-radius: 50%; display: grid; place-items: center;
+  font-family: var(--font-mono); font-size: .75rem; background: var(--code-bg); color: var(--muted);
+}
+.steps li::after {
+  content: ""; position: absolute; left: .78rem; top: 1.9rem; bottom: .3rem; width: 2px; background: var(--line);
+}
+.steps li:last-child::after { display: none; }
+.cmd {
+  display: block; overflow-x: auto; white-space: pre;
+  font-family: var(--font-mono); font-size: .88rem; line-height: 1.5;
+  background: var(--code-bg); padding: .6rem .8rem; border-radius: 6px; margin: 0 0 .5rem;
+}
+.why { margin: 0; color: var(--muted); }
+
+.video {
+  position: relative; aspect-ratio: 16 / 9; width: 100%;
+  border-radius: 10px; overflow: hidden; background: var(--code-bg);
+}
+.video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.video-empty {
+  position: absolute; inset: 0; display: grid; place-items: center; text-align: center;
+  padding: 1.5rem; color: var(--muted); font-size: .95rem;
+  border: 2px dashed var(--line); border-radius: 10px;
+}
+.video-caption { color: var(--muted); font-size: .88rem; margin: .6rem 0 0; }
+
+.empty {
+  max-width: 38rem; padding: 2rem; border: 2px dashed var(--line); border-radius: 10px; color: var(--muted);
+}
+.empty h2 { color: var(--ink); margin: 0 0 .5rem; font-size: 1.15rem; }
+.empty p { margin: 0; }
+
+.pager { display: flex; justify-content: space-between; gap: 1rem; margin: 3rem 0 0; padding: 1.5rem 0 0; border-top: 1px solid var(--line); }
+.pager button {
+  font: inherit; background: var(--surface); color: var(--ink); border: 1px solid var(--line);
+  border-radius: 8px; padding: .6rem 1rem; cursor: pointer; text-align: left;
+}
+.pager button:hover { border-color: var(--ink); }
+.pager button span { display: block; font-size: .8rem; color: var(--muted); }
+.pager .next { text-align: right; margin-left: auto; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="#" id="brand"></a>
+    <div class="lang" role="group" aria-label="Idioma / Language">
+      <button type="button" data-lang="pt">PT</button>
+      <button type="button" data-lang="en">EN</button>
+    </div>
+  </header>
+  <main id="app"></main>
+  <footer id="footer"></footer>
+</div>
+
+<script>
+/* ============================================================
+   SEUS DADOS — edite só esta parte
+   ============================================================ */
+
+const PROFILE = {
+  name: "LeoTaadeu",
+  github: "https://github.com/LeonardoTaadeu",
+  linkedin: "https://www.linkedin.com/in/leonardo-tadeu-a908b2240/",
+  youtube: "https://www.youtube.com/@krekDotSH",
+};
+
+// Quantos níveis você já resolveu, contando a partir do Level 0.
+// Ex.: se você já tem a senha do bandit22, você resolveu 23 níveis (0 até 21 → 22).
+const SOLVED_COUNT = 23;
+
+// O conteúdo de cada nível. A chave é o ID do nível:
+//   "level-0"      → Level 0
+//   "level-0-1"    → Level 0 → 1
+//   "level-12-13"  → Level 12 → 13
+// Copie o bloco do "level-0" como modelo para os outros.
+const WRITEUPS = {
+  "level-0": {
+    video: "", // ID do vídeo do YouTube, ex.: "dQw4w9WgXcQ". Vazio = vídeo em produção.
+    pt: {
+      goal: "Conectar pela primeira vez ao servidor do jogo usando SSH, com o usuário e a senha iniciais informados na página do nível.",
+      steps: [
+        {
+          cmd: "ssh -p 2220 bandit0@bandit.labs.overthewire.org",
+          why: "O servidor não usa a porta padrão do SSH (22). Encontrei a opção -p no manual com “man ssh” e uma busca por “port”."
+        }
+      ],
+      stuck: "Não sabia como informar uma porta diferente. Resolvi lendo a SYNOPSIS do “man ssh”, onde aparece [-p port].",
+      lesson: "SSH é o jeito mais comum de acessar servidores remotamente, e em pentest você usa isso o tempo todo. A lição maior: quando não souber uma opção, a documentação da ferramenta é o primeiro lugar para procurar."
+    },
+    en: {
+      goal: "Connect to the game server for the first time over SSH, using the starting username and password given on the level page.",
+      steps: [
+        {
+          cmd: "ssh -p 2220 bandit0@bandit.labs.overthewire.org",
+          why: "The server doesn’t use the default SSH port (22). I found the -p option in the manual with “man ssh” and a search for “port”."
+        }
+      ],
+      stuck: "I didn’t know how to set a different port. I solved it by reading the SYNOPSIS in “man ssh”, which shows [-p port].",
+      lesson: "SSH is the most common way to access servers remotely, and pentesters use it all the time. The bigger lesson: when you don’t know an option, the tool’s documentation is the first place to look."
+    }
+  }
+
+  // , "level-0-1": { video: "", pt: { ... }, en: { ... } }
+};
+
+/* ============================================================
+   Daqui para baixo é o funcionamento da página.
+   Não precisa mexer.
+   ============================================================ */
+
+const TOTAL = 34; // Level 0 até Level 32 → 33
+
+const UI = {
+  pt: {
+    tagline: "writeups do Bandit",
+    heroTitle: "OverTheWire Bandit, nível a nível",
+    heroP1: "Este é o registro da minha jornada pelo Bandit, um jogo de segurança que ensina Linux e o raciocínio de investigação a partir do zero.",
+    heroP2: "Para cada nível, escrevo o que o desafio pedia, os comandos que usei e por quê, onde travei e o que aprendi, junto com um vídeo da resolução. Sem senhas: o foco é o método.",
+    trackTitle: "Níveis",
+    progress: (s, t) => `<strong>${s}</strong> de ${t} níveis resolvidos`,
+    legendSolved: "Resolvido",
+    legendOpen: "Ainda não resolvido",
+    legendText: "Writeup escrito",
+    legendVideo: "Vídeo publicado",
+    aboutTitle1: "Por que este projeto",
+    aboutP1: "Estou construindo minha base para trabalhar com testes de intrusão. Documentar cada passo é como treino a escrita de relatórios, que é metade do trabalho de um pentester.",
+    aboutTitle2: "Como ler",
+    aboutP2: "Clique em qualquer nível da trilha. Cada página tem o objetivo, os passos com o porquê de cada comando, os erros que cometi e o vídeo da resolução.",
+    back: "Voltar para todos os níveis",
+    chipSolved: "Resolvido",
+    chipUnsolved: "Não resolvido",
+    chipText: "Writeup",
+    chipVideo: "Vídeo",
+    goal: "Objetivo",
+    steps: "Como resolvi",
+    stuck: "Onde travei",
+    lesson: "O que aprendi",
+    videoEmpty: "Vídeo em produção",
+    videoCaption: "Resolução deste nível em vídeo",
+    emptyTitleSolved: "Writeup em produção",
+    emptyTitleOpen: "Ainda não cheguei aqui",
+    emptySolved: "Já resolvi este nível, e o writeup está sendo escrito.",
+    emptyOpen: "Este nível ainda está à frente na minha trilha.",
+    prev: "Anterior",
+    next: "Próximo",
+    footer1: "Os desafios são do OverTheWire, uma comunidade que oferece jogos de segurança gratuitos.",
+    footer2: "Conforme as regras do OverTheWire, nenhuma credencial dos jogos é publicada aqui.",
+    otwLink: "Visitar o OverTheWire"
+  },
+  en: {
+    tagline: "Bandit writeups",
+    heroTitle: "OverTheWire Bandit, level by level",
+    heroP1: "This is the record of my journey through Bandit, a security wargame that teaches Linux and investigative thinking from the ground up.",
+    heroP2: "For each level I write what the challenge asked, the commands I used and why, where I got stuck and what I learned, alongside a video of the solution. No passwords: the focus is the method.",
+    trackTitle: "Levels",
+    progress: (s, t) => `<strong>${s}</strong> of ${t} levels solved`,
+    legendSolved: "Solved",
+    legendOpen: "Not solved yet",
+    legendText: "Writeup written",
+    legendVideo: "Video published",
+    aboutTitle1: "Why this project",
+    aboutP1: "I’m building my foundation to work in penetration testing. Documenting every step is how I practice report writing, which is half of a pentester’s job.",
+    aboutTitle2: "How to read it",
+    aboutP2: "Click any level on the track. Each page has the goal, the steps with the reason behind each command, the mistakes I made and the video of the solution.",
+    back: "Back to all levels",
+    chipSolved: "Solved",
+    chipUnsolved: "Not solved",
+    chipText: "Writeup",
+    chipVideo: "Video",
+    goal: "Goal",
+    steps: "How I solved it",
+    stuck: "Where I got stuck",
+    lesson: "What I learned",
+    videoEmpty: "Video in production",
+    videoCaption: "Video walkthrough of this level",
+    emptyTitleSolved: "Writeup in progress",
+    emptyTitleOpen: "Not here yet",
+    emptySolved: "I’ve solved this level, and the writeup is being written.",
+    emptyOpen: "This level is still ahead on my track.",
+    prev: "Previous",
+    next: "Next",
+    footer1: "The challenges belong to OverTheWire, a community that offers free security wargames.",
+    footer2: "Following OverTheWire’s rules, no game credentials are published here.",
+    otwLink: "Visit OverTheWire"
+  }
+};
+
+const LEVELS = Array.from({ length: TOTAL }, (_, i) => {
+  if (i === 0) return { i, id: "level-0", title: "Level 0", short: "0", num: "0" };
+  return { i, id: `level-${i - 1}-${i}`, title: `Level ${i - 1} → ${i}`, short: `${i - 1}→${i}`, num: `${i - 1} → ${i}` };
+});
+
+let lang = document.documentElement.lang.startsWith("en") ? "en" : "pt";
+
+const esc = (s) => String(s ?? "")
+  .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+const ICON_TEXT = `<svg class="mark" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M4 1.5h5.5L13 5v9.5H4z" opacity=".25"/><path fill="none" stroke="currentColor" stroke-width="1.3" d="M4 1.5h5.5L13 5v9.5H4zM9.5 1.5V5H13M6 8h5M6 10.5h5"/></svg>`;
+const ICON_VIDEO = `<svg class="mark" viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="3" width="13" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.3"/><path fill="currentColor" d="M6.5 5.8v4.4L10.3 8z"/></svg>`;
+
+function state(level) {
+  const w = WRITEUPS[level.id];
+  const text = !!(w && w[lang] && w[lang].goal);
+  const video = !!(w && w.video);
+  return { solved: level.i < SOLVED_COUNT, text, video, w };
+}
+
+function renderChrome() {
+  const t = UI[lang];
+  document.documentElement.lang = lang === "en" ? "en" : "pt-BR";
+  document.getElementById("brand").innerHTML = `${esc(PROFILE.name)}<small>${t.tagline}</small>`;
+  document.querySelectorAll(".lang button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.lang === lang)));
+  document.getElementById("footer").innerHTML = `
+    <p>${t.footer1} <a href="https://overthewire.org/wargames/bandit/" target="_blank" rel="noopener">${t.otwLink}</a></p>
+    <p>${t.footer2}</p>`;
+}
+
+function renderHome() {
+  const t = UI[lang];
+  const solved = Math.min(SOLVED_COUNT, TOTAL);
+  const items = LEVELS.map(l => {
+    const s = state(l);
+    const tags = [
+      s.text ? `<span>${ICON_TEXT} ${t.chipText}</span>` : "",
+      s.video ? `<span>${ICON_VIDEO} ${t.chipVideo}</span>` : ""
+    ].join("");
+    return `<li>
+      <a class="level-link" href="#${l.id}">
+        <span class="level-name">${l.title}</span>
+        <span class="level-tags">${tags}</span>
+      </a></li>`;
+  }).join("");
+
+  const links = [
+    PROFILE.github && `<a href="${esc(PROFILE.github)}" target="_blank" rel="noopener">GitHub</a>`,
+    PROFILE.linkedin && `<a href="${esc(PROFILE.linkedin)}" target="_blank" rel="noopener">LinkedIn</a>`,
+    PROFILE.youtube && `<a href="${esc(PROFILE.youtube)}" target="_blank" rel="noopener">YouTube</a>`
+  ].filter(Boolean).join("");
+
+  document.getElementById("app").innerHTML = `
+    <section class="hero">
+      <h1>${t.heroTitle}</h1>
+      <p>${t.heroP1}</p>
+      <p>${t.heroP2}</p>
+      <nav class="links" aria-label="Links">${links}</nav>
+    </section>
+
+    <section aria-labelledby="track-title">
+      <div class="track-head">
+        <h2 id="track-title">${t.trackTitle}</h2>
+        <p class="progress">${t.progress(solved, TOTAL)}</p>
+      </div>
+      <ul class="levels">${items}</ul>
+    </section>
+
+    <section class="about">
+      <div><h3>${t.aboutTitle1}</h3><p>${t.aboutP1}</p></div>
+      <div><h3>${t.aboutTitle2}</h3><p>${t.aboutP2}</p></div>
+    </section>`;
+  document.title = `${PROFILE.name} — OverTheWire Bandit`;
+}
+
+function renderLevel(level) {
+  const t = UI[lang];
+  const s = state(level);
+  const c = s.text ? s.w[lang] : null;
+  const prev = LEVELS[level.i - 1];
+  const next = LEVELS[level.i + 1];
+
+  const chips = `
+    <span class="chip ${s.solved ? "on" : ""}">${s.solved ? t.chipSolved : t.chipUnsolved}</span>
+    ${s.text ? `<span class="chip on">${t.chipText}</span>` : ""}
+    ${s.video ? `<span class="chip on">${t.chipVideo}</span>` : ""}`;
+
+  const body = c ? `
+    <div class="section"><h2>${t.goal}</h2><p>${esc(c.goal)}</p></div>
+    <div class="section"><h2>${t.steps}</h2>
+      <ol class="steps">${(c.steps || []).map(st => `
+        <li>${st.cmd ? `<code class="cmd">${esc(st.cmd)}</code>` : ""}<p class="why">${esc(st.why)}</p></li>`).join("")}
+      </ol></div>
+    ${c.stuck ? `<div class="section"><h2>${t.stuck}</h2><p>${esc(c.stuck)}</p></div>` : ""}
+    ${c.lesson ? `<div class="section"><h2>${t.lesson}</h2><p>${esc(c.lesson)}</p></div>` : ""}`
+    : `<div class="empty">
+         <h2>${s.solved ? t.emptyTitleSolved : t.emptyTitleOpen}</h2>
+         <p>${s.solved ? t.emptySolved : t.emptyOpen}</p>
+       </div>`;
+
+  const video = s.video
+    ? `<div class="video"><iframe src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(s.w.video)}" title="${esc(level.title)}" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>
+       <p class="video-caption">${t.videoCaption}</p>`
+    : `<div class="video"><div class="video-empty">${t.videoEmpty}</div></div>`;
+
+  document.getElementById("app").innerHTML = `
+    <div class="crumbs"><button class="back" type="button" data-go="">${t.back}</button></div>
+    <header class="level-head">
+      <h1>Level <span class="num">${level.num}</span></h1>
+      <div class="chips">${chips}</div>
+    </header>
+    <div class="level-grid">
+      <article>${body}</article>
+      <aside class="video-col">${video}</aside>
+    </div>
+    <nav class="pager" aria-label="${t.prev} / ${t.next}">
+      ${prev ? `<button type="button" data-go="${prev.id}"><span>${t.prev}</span>${prev.title}</button>` : ""}
+      ${next ? `<button type="button" class="next" data-go="${next.id}"><span>${t.next}</span>${next.title}</button>` : ""}
+    </nav>`;
+  document.title = `${level.title} — ${PROFILE.name}`;
+}
+
+function route() {
+  renderChrome();
+  const id = location.hash.replace(/^#/, "");
+  const level = LEVELS.find(l => l.id === id);
+  if (level) { renderLevel(level); window.scrollTo(0, 0); }
+  else renderHome();
+}
+
+document.addEventListener("click", (e) => {
+  const go = e.target.closest("[data-go]");
+  if (go) { location.hash = go.dataset.go; if (!go.dataset.go) route(); }
+  const lb = e.target.closest(".lang button");
+  if (lb) { lang = lb.dataset.lang; route(); }
+});
+window.addEventListener("hashchange", route);
+route();
+</script>
+</body>
+</html>
