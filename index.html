@@ -269,10 +269,7 @@ const WRITEUPS = {
     pt: {
       goal: "Conectar pela primeira vez ao servidor do jogo usando SSH, com o usuário e a senha iniciais informados na página do nível.",
       steps: [
-        {
-          cmd: "ssh -p 2220 bandit0@bandit.labs.overthewire.org",
-          why: "O servidor não usa a porta padrão do SSH (22). Encontrei a opção -p no manual com “man ssh” e uma busca por “port”."
-        }
+        { cmd: "ssh -p 2220 bandit0@bandit.labs.overthewire.org", why: "O servidor não usa a porta padrão do SSH (22). Encontrei a opção -p no manual com “man ssh” e uma busca por “port”." }
       ],
       stuck: "Não sabia como informar uma porta diferente. Resolvi lendo a SYNOPSIS do “man ssh”, onde aparece [-p port].",
       lesson: "SSH é o jeito mais comum de acessar servidores remotamente, e em pentest você usa isso o tempo todo. A lição maior: quando não souber uma opção, a documentação da ferramenta é o primeiro lugar para procurar."
@@ -280,17 +277,500 @@ const WRITEUPS = {
     en: {
       goal: "Connect to the game server for the first time over SSH, using the starting username and password given on the level page.",
       steps: [
-        {
-          cmd: "ssh -p 2220 bandit0@bandit.labs.overthewire.org",
-          why: "The server doesn’t use the default SSH port (22). I found the -p option in the manual with “man ssh” and a search for “port”."
-        }
+        { cmd: "ssh -p 2220 bandit0@bandit.labs.overthewire.org", why: "The server doesn’t use the default SSH port (22). I found the -p option in the manual with “man ssh” and a search for “port”." }
       ],
       stuck: "I didn’t know how to set a different port. I solved it by reading the SYNOPSIS in “man ssh”, which shows [-p port].",
       lesson: "SSH is the most common way to access servers remotely, and pentesters use it all the time. The bigger lesson: when you don’t know an option, the tool’s documentation is the first place to look."
     }
-  }
+  },
 
-  // , "level-0-1": { video: "", pt: { ... }, en: { ... } }
+  "level-0-1": {
+    video: "",
+    pt: {
+      goal: "Ler a senha do próximo nível, que está num arquivo chamado readme na home do usuário.",
+      steps: [
+        { cmd: "ls", why: "Listar o conteúdo do diretório antes de qualquer coisa, para saber com o que estou trabalhando." },
+        { cmd: "cat readme", why: "O cat mostra o conteúdo de um arquivo na tela." }
+      ],
+      stuck: "Sem travamentos aqui. Foi o primeiro contato com o fluxo de olhar o diretório antes de agir.",
+      lesson: "Listar e ler arquivos é a base de tudo. Depois de ganhar acesso a uma máquina, a primeira coisa que um pentester faz é exatamente isso: olhar o que existe ao redor."
+    },
+    en: {
+      goal: "Read the password for the next level, stored in a file called readme in the user’s home directory.",
+      steps: [
+        { cmd: "ls", why: "List the directory contents first, to know what I’m working with." },
+        { cmd: "cat readme", why: "cat prints a file’s contents to the screen." }
+      ],
+      stuck: "No real blockers here. It was my first contact with the habit of looking around before acting.",
+      lesson: "Listing and reading files is the foundation of everything. After gaining access to a machine, the first thing a pentester does is exactly this: look at what’s there."
+    }
+  },
+
+  "level-1-2": {
+    video: "",
+    pt: {
+      goal: "Ler a senha guardada num arquivo chamado apenas “-”.",
+      steps: [
+        { cmd: "cat -", why: "Primeira tentativa. O comando ficou parado, parecendo travado, e saí com Ctrl+C." },
+        { cmd: "cat /home/bandit1/-", why: "Usando o caminho completo, o argumento deixa de ser um traço solto e o cat entende que é um arquivo." },
+        { cmd: "cat ./-", why: "Versão curta com caminho relativo: o ./ significa “neste diretório” e resolve pelo mesmo motivo." }
+      ],
+      stuck: "O cat - não estava travado: para o cat e muitos outros comandos, um traço sozinho significa “ler da entrada padrão”, ou seja, do teclado. Ele estava esperando eu digitar.",
+      lesson: "Convenções do terminal podem fazer um comando agir diferente do esperado. Saber referenciar arquivos por caminho absoluto ou relativo resolve muitos casos de nomes estranhos."
+    },
+    en: {
+      goal: "Read the password stored in a file named just “-”.",
+      steps: [
+        { cmd: "cat -", why: "First attempt. The command just sat there, looking frozen, and I exited with Ctrl+C." },
+        { cmd: "cat /home/bandit1/-", why: "With the full path, the argument is no longer a lone dash, so cat treats it as a file." },
+        { cmd: "cat ./-", why: "Shorter version with a relative path: ./ means “in this directory” and works for the same reason." }
+      ],
+      stuck: "cat - wasn’t frozen: for cat and many other commands, a lone dash means “read from standard input”, which is the keyboard. It was waiting for me to type.",
+      lesson: "Terminal conventions can make a command behave differently than expected. Referring to files by absolute or relative path solves many cases of odd file names."
+    }
+  },
+
+  "level-2-3": {
+    video: "",
+    pt: {
+      goal: "Ler a senha num arquivo cujo nome tem espaços e começa com dois traços.",
+      steps: [
+        { cmd: "ls", why: "Ver o nome exato do arquivo, caractere por caractere." },
+        { cmd: "cat -- --spaces\\ in\\ this\\ filename--", why: "A barra invertida “escapa” cada espaço, para o terminal tratar o nome como um argumento só. O -- avisa o cat que as opções acabaram e o que vem depois é nome de arquivo." },
+        { cmd: "cat ./'--spaces in this filename--'", why: "Outra forma: as aspas mantêm os espaços no nome, e o ./ faz o argumento começar com ponto em vez de traço." }
+      ],
+      stuck: "Mesmo com o escape certo, o cat achava que o nome era uma opção desconhecida, porque começava com traço. Também deixei uma barra sobrando no final. A própria mensagem de erro tinha uma dica sugerindo usar --, e foi lendo ela que resolvi.",
+      lesson: "O terminal separa argumentos por espaço, então espaços e caracteres especiais precisam ser escapados ou colocados entre aspas. Esse conceito volta em vulnerabilidades como injeção de comandos. E ler a mensagem de erro inteira muitas vezes já entrega a solução."
+    },
+    en: {
+      goal: "Read the password in a file whose name contains spaces and starts with two dashes.",
+      steps: [
+        { cmd: "ls", why: "Check the exact file name, character by character." },
+        { cmd: "cat -- --spaces\\ in\\ this\\ filename--", why: "The backslash “escapes” each space, so the shell treats the name as a single argument. The -- tells cat that options are over and what follows is a file name." },
+        { cmd: "cat ./'--spaces in this filename--'", why: "Another way: quotes keep the spaces in the name, and ./ makes the argument start with a dot instead of a dash." }
+      ],
+      stuck: "Even with correct escaping, cat thought the name was an unknown option because it started with a dash. I also left a stray slash at the end. The error message itself had a tip suggesting --, and reading it is how I solved it.",
+      lesson: "The shell splits arguments on spaces, so spaces and special characters must be escaped or quoted. This concept comes back in vulnerabilities like command injection. And reading the whole error message often hands you the solution."
+    }
+  },
+
+  "level-3-4": {
+    video: "",
+    pt: {
+      goal: "Encontrar a senha num arquivo oculto dentro da pasta inhere.",
+      steps: [
+        { cmd: "cd inhere\nls", why: "O ls comum não mostrou nada." },
+        { cmd: "ls -la", why: "O -a mostra também os arquivos ocultos, e o -l mostra detalhes como permissões e dono." },
+        { cmd: "cat ./<arquivo-oculto>", why: "Li o arquivo usando o nome exatamente como apareceu no ls -la, incluindo o ponto do começo." }
+      ],
+      stuck: "No começo achei que arquivo oculto precisava de algum comando especial para ser lido. Não precisa: o ponto é só parte do nome.",
+      lesson: "No Linux, “oculto” é só uma convenção de nome, não uma proteção. Em pentest, arquivos ocultos como .bash_history, .ssh e arquivos de configuração costumam guardar credenciais, então ls -la vira reflexo."
+    },
+    en: {
+      goal: "Find the password in a hidden file inside the inhere folder.",
+      steps: [
+        { cmd: "cd inhere\nls", why: "A plain ls showed nothing." },
+        { cmd: "ls -la", why: "-a also shows hidden files, and -l shows details like permissions and owner." },
+        { cmd: "cat ./<hidden-file>", why: "I read the file using its name exactly as shown by ls -la, including the leading dot." }
+      ],
+      stuck: "At first I thought a hidden file needed some special command to be read. It doesn’t: the dot is just part of the name.",
+      lesson: "On Linux, “hidden” is just a naming convention, not protection. In pentesting, hidden files like .bash_history, .ssh and config files often hold credentials, so ls -la becomes a reflex."
+    }
+  },
+
+  "level-4-5": {
+    video: "",
+    pt: {
+      goal: "Entre vários arquivos, encontrar o único com conteúdo legível por humanos.",
+      steps: [
+        { cmd: "file /home/bandit4/inhere/*", why: "O file identifica o tipo pelo conteúdo, não pelo nome. Usei o caminho completo porque todos os nomes começam com traço, a lição do nível 1. O * testa todos de uma vez." },
+        { cmd: "cat ./-file07", why: "Só um aparecia como ASCII text. Os outros eram data, ou seja, binários." }
+      ],
+      stuck: "Sem grandes travamentos. O ponto principal foi lembrar que os nomes começando com traço causariam o mesmo problema do nível 1.",
+      lesson: "Nunca confie no nome ou na extensão de um arquivo. O file mostra o que ele realmente é. E aplicar um aprendizado anterior num problema novo é exatamente o tipo de raciocínio que importa."
+    },
+    en: {
+      goal: "Among several files, find the only one with human-readable content.",
+      steps: [
+        { cmd: "file /home/bandit4/inhere/*", why: "file identifies the type by content, not by name. I used the full path because every name starts with a dash, the lesson from level 1. The * tests all of them at once." },
+        { cmd: "cat ./-file07", why: "Only one showed up as ASCII text. The rest were data, meaning binary." }
+      ],
+      stuck: "No major blockers. The main point was remembering that dash-prefixed names would cause the same problem as level 1.",
+      lesson: "Never trust a file’s name or extension. file shows what it really is. And applying an earlier lesson to a new problem is exactly the kind of thinking that matters."
+    }
+  },
+
+  "level-5-6": {
+    video: "",
+    pt: {
+      goal: "Encontrar, entre muitas pastas, um arquivo legível, com 1033 bytes e não executável.",
+      steps: [
+        { cmd: "find /home/bandit5/inhere -type f -size 1033c", why: "O find percorre todas as subpastas. O -type f filtra só arquivos comuns, e o -size 1033c procura exatamente 1033 bytes. O c é a unidade de bytes." },
+        { cmd: "file <caminho-encontrado>", why: "Confirmei que o único resultado era texto antes de ler com cat." }
+      ],
+      stuck: "Errei a unidade: usei M, que é megabytes, e o find simplesmente não retornou nada, sem erro. Também tentei usar os colchetes do manual, [cwbkMG], ao pé da letra. Nos manuais, colchetes indicam algo opcional, não fazem parte do comando.",
+      lesson: "Saída vazia não é erro, é “não encontrei o que você pediu”. Quando isso acontece, a primeira suspeita deve ser o próprio pedido. E sem letra de unidade, o find usa blocos de 512 bytes, um erro silencioso perigoso."
+    },
+    en: {
+      goal: "Among many folders, find a file that is human-readable, 1033 bytes in size and not executable.",
+      steps: [
+        { cmd: "find /home/bandit5/inhere -type f -size 1033c", why: "find walks through every subfolder. -type f keeps only regular files, and -size 1033c looks for exactly 1033 bytes. The c is the byte unit." },
+        { cmd: "file <found-path>", why: "I confirmed the only result was text before reading it with cat." }
+      ],
+      stuck: "I got the unit wrong: I used M, which is megabytes, and find just returned nothing, with no error. I also tried to use the manual’s brackets, [cwbkMG], literally. In man pages, brackets mean something is optional; they’re not part of the command.",
+      lesson: "Empty output isn’t an error, it means “I didn’t find what you asked for”. When that happens, the first suspect should be the request itself. And without a unit letter, find uses 512-byte blocks, a dangerous silent mistake."
+    }
+  },
+
+  "level-6-7": {
+    video: "",
+    pt: {
+      goal: "Encontrar em qualquer lugar do servidor um arquivo do usuário bandit7, do grupo bandit6, com 33 bytes.",
+      steps: [
+        { cmd: "find / -user bandit7 -group bandit6 -size 33c 2>/dev/null", why: "Busca a partir da raiz, que contém todo o sistema. O 2>/dev/null manda as mensagens de erro, como “Permission denied”, para a lixeira, deixando na tela só o resultado." },
+        { cmd: "cat <caminho-encontrado>", why: "O arquivo estava escondido numa pasta de sistema, longe de qualquer lugar óbvio." }
+      ],
+      stuck: "Errei bastante aqui. Digitei /-user com a barra, que era só a tecla de busca dentro do man, e escrevi uname e gname, que eram apenas espaços reservados do manual. Também comecei a busca em /home em vez da raiz. E o resultado certo apareceu afogado em dezenas de “Permission denied”.",
+      lesson: "Todo comando tem duas saídas separadas: a normal (1) e a de erro (2), e dá para redirecionar cada uma. Em pentest, procurar arquivos por características como dono, grupo e tamanho, em vez de pelo nome, é como se acha o que importa num servidor."
+    },
+    en: {
+      goal: "Find, anywhere on the server, a file owned by user bandit7 and group bandit6, 33 bytes in size.",
+      steps: [
+        { cmd: "find / -user bandit7 -group bandit6 -size 33c 2>/dev/null", why: "Search from the root, which contains the whole system. 2>/dev/null sends error messages like “Permission denied” to the trash, leaving only the result on screen." },
+        { cmd: "cat <found-path>", why: "The file was hidden in a system folder, far from anywhere obvious." }
+      ],
+      stuck: "I made plenty of mistakes here. I typed /-user with the slash, which was just the search key inside man, and wrote uname and gname, which were only placeholders from the manual. I also started the search in /home instead of the root. And the right result was buried under dozens of “Permission denied” lines.",
+      lesson: "Every command has two separate outputs: normal (1) and error (2), and each can be redirected. In pentesting, searching for files by traits like owner, group and size, rather than by name, is how you find what matters on a server."
+    }
+  },
+
+  "level-7-8": {
+    video: "",
+    pt: {
+      goal: "Encontrar a senha no arquivo data.txt, na linha ao lado da palavra millionth.",
+      steps: [
+        { cmd: "grep millionth data.txt", why: "O grep mostra só as linhas que contêm o texto procurado." },
+        { cmd: "cat data.txt | grep millionth", why: "Outra forma, com pipe: o cat envia o arquivo e o grep filtra. Funciona, mas o grep direto é mais limpo." }
+      ],
+      stuck: "Numa das tentativas digitei a palavra errada e o grep não mostrou nada, sem erro. Mesma lição do nível 5: saída vazia pode ser o meu pedido que está errado.",
+      lesson: "O grep é um dos comandos mais usados em pentest, para procurar senhas em arquivos de configuração ou filtrar saídas gigantes de ferramentas. E o pipe permite encadear comandos como uma linha de produção."
+    },
+    en: {
+      goal: "Find the password in data.txt, on the line next to the word millionth.",
+      steps: [
+        { cmd: "grep millionth data.txt", why: "grep shows only the lines that contain the search text." },
+        { cmd: "cat data.txt | grep millionth", why: "Another way, with a pipe: cat sends the file and grep filters it. It works, but grep on its own is cleaner." }
+      ],
+      stuck: "In one attempt I misspelled the word and grep showed nothing, with no error. Same lesson as level 5: empty output may mean my request is wrong.",
+      lesson: "grep is one of the most used commands in pentesting, to search for passwords in config files or filter huge tool outputs. And the pipe lets you chain commands like an assembly line."
+    }
+  },
+
+  "level-8-9": {
+    video: "",
+    pt: {
+      goal: "Encontrar a única linha do data.txt que aparece uma só vez.",
+      steps: [
+        { cmd: "sort data.txt", why: "Ordena as linhas e deixa as repetidas lado a lado." },
+        { cmd: "sort data.txt | uniq -u", why: "O pipe envia a saída do sort como entrada do uniq. O -u mostra só as linhas que não se repetem." }
+      ],
+      stuck: "Minha primeira tentativa foi sort data.txt | uniq data.txt. Ao receber o nome do arquivo, o uniq leu o arquivo original, desordenado, e ignorou o que vinha pelo pipe.",
+      lesson: "O uniq só enxerga repetições em linhas vizinhas, por isso depende do sort. E a maioria dos comandos lê da entrada padrão quando você não passa um arquivo, que é o que faz o pipe funcionar."
+    },
+    en: {
+      goal: "Find the only line in data.txt that appears just once.",
+      steps: [
+        { cmd: "sort data.txt", why: "Sorts the lines and puts duplicates next to each other." },
+        { cmd: "sort data.txt | uniq -u", why: "The pipe sends sort’s output as uniq’s input. -u shows only the lines that don’t repeat." }
+      ],
+      stuck: "My first try was sort data.txt | uniq data.txt. Given a file name, uniq read the original unsorted file and ignored what came through the pipe.",
+      lesson: "uniq only sees repeats in adjacent lines, which is why it depends on sort. And most commands read from standard input when you don’t pass a file, which is what makes the pipe work."
+    }
+  },
+
+  "level-9-10": {
+    video: "",
+    pt: {
+      goal: "Encontrar a senha num arquivo binário, numa das poucas partes legíveis, precedida por vários sinais de igual.",
+      steps: [
+        { cmd: "file data.txt", why: "Primeiro, entender o alvo: o arquivo é binário, então um cat mostraria lixo." },
+        { cmd: "strings data.txt | grep =====", why: "O strings extrai só os trechos legíveis do binário, e o grep filtra as linhas com uma sequência de sinais de igual." }
+      ],
+      stuck: "Com grep = a saída veio cheia de fragmentos aleatórios do binário. Afinei o filtro para vários sinais seguidos e sobrou só o que importava. Tentar o grep direto no arquivo só retornou “binary file matches”.",
+      lesson: "Ir afinando um filtro até sobrar só o sinal, sem o ruído, é algo que se faz o tempo todo, seja em saída de scan, log de servidor ou resposta de aplicação."
+    },
+    en: {
+      goal: "Find the password in a binary file, in one of the few readable parts, preceded by several equals signs.",
+      steps: [
+        { cmd: "file data.txt", why: "First, understand the target: the file is binary, so cat would print garbage." },
+        { cmd: "strings data.txt | grep =====", why: "strings extracts only the readable chunks from the binary, and grep keeps the lines with a run of equals signs." }
+      ],
+      stuck: "With grep = the output was full of random binary fragments. I tightened the filter to several signs in a row and only what mattered was left. Running grep directly on the file only returned “binary file matches”.",
+      lesson: "Tightening a filter until only the signal remains, without the noise, is something you do all the time, whether on scan output, server logs or application responses."
+    }
+  },
+
+  "level-10-11": {
+    video: "",
+    pt: {
+      goal: "Ler a senha num arquivo cujo conteúdo está codificado em Base64.",
+      steps: [
+        { cmd: "cat data.txt", why: "Ver o formato. Só letras, números e terminando em ==, a cara típica do Base64." },
+        { cmd: "base64 -d data.txt", why: "Achei no man a opção -d, de decode, que faz o caminho inverso." }
+      ],
+      stuck: "Sem travamentos. Resolvi lendo o manual sozinho.",
+      lesson: "Base64 é codificação, não criptografia: qualquer um desfaz sem chave. Em pentest web aparece muito em cookies, tokens e cabeçalhos, e muita aplicação comete o erro de achar que codificar é proteger."
+    },
+    en: {
+      goal: "Read the password from a file whose content is Base64 encoded.",
+      steps: [
+        { cmd: "cat data.txt", why: "Check the format. Only letters and numbers, ending in ==, the typical look of Base64." },
+        { cmd: "base64 -d data.txt", why: "I found the -d option, for decode, in the man page; it does the reverse." }
+      ],
+      stuck: "No blockers. I solved it by reading the manual on my own.",
+      lesson: "Base64 is encoding, not encryption: anyone can reverse it without a key. In web pentesting it shows up a lot in cookies, tokens and headers, and many applications make the mistake of treating encoding as protection."
+    }
+  },
+
+  "level-11-12": {
+    video: "",
+    pt: {
+      goal: "Ler a senha num texto em que todas as letras foram rotacionadas 13 posições, a cifra ROT13.",
+      steps: [
+        { cmd: "cat data.txt | tr 'a-z' 'n-za-m' | tr 'A-Z' 'N-ZA-M'", why: "O tr troca cada caractere do primeiro conjunto pelo da mesma posição no segundo. O a vira n, o b vira o, e assim por diante. Um tr cuida das minúsculas e outro das maiúsculas." },
+        { cmd: "cat data.txt | tr 'a-zA-Z' 'n-za-mN-ZA-M'", why: "A mesma coisa num tr só, com os dois intervalos em cada conjunto." }
+      ],
+      stuck: "Na primeira tentativa converti só as minúsculas, e a frase saiu como “Ghe password” em vez de “The password”. Esse erro na saída me mostrou que faltava tratar as maiúsculas, e que a senha também estaria errada.",
+      lesson: "Sempre valide o resultado antes de seguir. Uma saída que não faz sentido é um aviso de que algo no processo está errado."
+    },
+    en: {
+      goal: "Read the password from text where every letter was rotated 13 positions, the ROT13 cipher.",
+      steps: [
+        { cmd: "cat data.txt | tr 'a-z' 'n-za-m' | tr 'A-Z' 'N-ZA-M'", why: "tr replaces each character in the first set with the one in the same position in the second. a becomes n, b becomes o, and so on. One tr handles lowercase and another handles uppercase." },
+        { cmd: "cat data.txt | tr 'a-zA-Z' 'n-za-mN-ZA-M'", why: "The same thing with a single tr, using both ranges in each set." }
+      ],
+      stuck: "On my first try I only converted lowercase, and the sentence came out as “Ghe password” instead of “The password”. That error in the output showed me uppercase was missing, and that the password would be wrong too.",
+      lesson: "Always validate the result before moving on. Output that doesn’t make sense is a warning that something in the process is off."
+    }
+  },
+
+  // "level-12-13": escrever com as suas palavras (pendência com o Rafael).
+
+  "level-13-14": {
+    video: "",
+    pt: {
+      goal: "Usar uma chave SSH privada, em vez de senha, para entrar como bandit14 e ler a senha dele.",
+      steps: [
+        { cmd: "cat sshkey.private", why: "Ver a chave privada, um bloco de texto entre as linhas BEGIN e END." },
+        { cmd: "nano chave_bandit14", why: "No meu próprio computador, como a página do nível pede, criei um arquivo e colei a chave inteira." },
+        { cmd: "chmod 600 chave_bandit14", why: "O SSH se recusa a usar uma chave que outros usuários possam ler. O 600 deixa leitura e escrita só para o dono." },
+        { cmd: "ssh -i chave_bandit14 -p 2220 bandit14@bandit.labs.overthewire.org", why: "O -i indica o arquivo da chave. Entrou sem pedir senha." },
+        { cmd: "cat /etc/bandit_pass/bandit14", why: "As senhas de cada nível ficam nessa pasta, e cada usuário só lê a própria." }
+      ],
+      stuck: "Primeiro usei chmod u+x, que adiciona permissão de execução, quando o necessário era tirar a leitura dos outros. Depois tentei entrar no arquivo de senha com cd, e o erro “Not a directory” mostrou que era um arquivo, para ler com cat.",
+      lesson: "Na autenticação por chave, a pública fica no servidor e a privada fica com você. Em pentest, uma chave privada esquecida numa máquina comprometida pode dar acesso a outra conta ou servidor, o chamado movimento lateral."
+    },
+    en: {
+      goal: "Use a private SSH key, instead of a password, to log in as bandit14 and read their password.",
+      steps: [
+        { cmd: "cat sshkey.private", why: "View the private key, a block of text between the BEGIN and END lines." },
+        { cmd: "nano chave_bandit14", why: "On my own computer, as the level page asks, I created a file and pasted the whole key." },
+        { cmd: "chmod 600 chave_bandit14", why: "SSH refuses to use a key other users can read. 600 gives read and write to the owner only." },
+        { cmd: "ssh -i chave_bandit14 -p 2220 bandit14@bandit.labs.overthewire.org", why: "-i points to the key file. It logged in without asking for a password." },
+        { cmd: "cat /etc/bandit_pass/bandit14", why: "Each level’s password lives in this folder, and each user can only read their own." }
+      ],
+      stuck: "I first used chmod u+x, which adds execute permission, when what I needed was to remove read access for others. Then I tried to enter the password file with cd, and the “Not a directory” error showed it was a file, to be read with cat.",
+      lesson: "With key authentication, the public key lives on the server and the private key stays with you. In pentesting, a private key left on a compromised machine can grant access to another account or server, known as lateral movement."
+    }
+  },
+
+  "level-14-15": {
+    video: "",
+    pt: {
+      goal: "Enviar a senha atual para um serviço escutando na porta 30000 da própria máquina.",
+      steps: [
+        { cmd: "nc localhost 30000", why: "O nc conecta numa porta e deixa conversar com o serviço. localhost significa a própria máquina. Com a conexão aberta, colei a senha e apertei Enter." },
+        { cmd: "echo <senha-atual> | nc localhost 30000", why: "A mesma coisa num comando só: o echo “digita” a senha e o pipe entrega para o nc." }
+      ],
+      stuck: "Achei que precisava da opção -x, que na verdade é para proxy. E confundi destino com porta: o destino é a máquina, a porta é o número do serviço.",
+      lesson: "Esse é o modelo cliente e servidor que está por baixo de quase toda comunicação de rede, e a base para entender o que um scanner de portas faz. Detalhe de segurança: colocar senha na linha de comando faz ela ficar salva no histórico do terminal."
+    },
+    en: {
+      goal: "Send the current password to a service listening on port 30000 of the same machine.",
+      steps: [
+        { cmd: "nc localhost 30000", why: "nc connects to a port and lets you talk to the service. localhost means the machine itself. With the connection open, I pasted the password and pressed Enter." },
+        { cmd: "echo <current-password> | nc localhost 30000", why: "The same in one command: echo “types” the password and the pipe hands it to nc." }
+      ],
+      stuck: "I thought I needed the -x option, which is actually for proxies. And I mixed up host and port: the host is the machine, the port is the service number.",
+      lesson: "This is the client–server model behind almost all network communication, and the basis for understanding what a port scanner does. Security detail: putting a password on the command line saves it in the shell history."
+    }
+  },
+
+  "level-15-16": {
+    video: "",
+    pt: {
+      goal: "Enviar a senha atual para um serviço na porta 30001, só que agora com comunicação criptografada por SSL/TLS.",
+      steps: [
+        { cmd: "openssl s_client -connect localhost:30001", why: "O nc não sabe fazer o handshake do TLS. O s_client do openssl faz o handshake e depois funciona como o nc. Repare que destino e porta vão juntos, separados por dois-pontos." }
+      ],
+      stuck: "Resolvi sozinho lendo o manual. O ponto de atenção foi o formato do -connect, diferente do nc.",
+      lesson: "Antes de qualquer dado, cliente e servidor combinam a criptografia num handshake, a mesma tecnologia do cadeado do HTTPS. Cada protocolo exige a ferramenta certa para conversar."
+    },
+    en: {
+      goal: "Send the current password to a service on port 30001, but this time over SSL/TLS encrypted communication.",
+      steps: [
+        { cmd: "openssl s_client -connect localhost:30001", why: "nc can’t do the TLS handshake. openssl’s s_client does the handshake and then works like nc. Note that host and port go together, separated by a colon." }
+      ],
+      stuck: "I solved it on my own by reading the manual. The thing to watch was the -connect format, which differs from nc.",
+      lesson: "Before any data is sent, client and server agree on encryption in a handshake, the same technology behind the HTTPS padlock. Each protocol needs the right tool to talk to it."
+    }
+  },
+
+  "level-16-17": {
+    video: "",
+    pt: {
+      goal: "Descobrir, entre as portas 31000 e 32000, qual serviço fala SSL/TLS e devolve a credencial do próximo nível ao receber a senha atual.",
+      steps: [
+        { cmd: "nmap localhost -p 31000-32000", why: "Scan de portas: das mil portas, cinco estavam abertas." },
+        { cmd: "nmap localhost -p 31000-32000 -sV", why: "O -sV tenta identificar o serviço de cada porta. Três eram echo, que só repete o que recebe. Duas falavam SSL: uma ssl/echo e outra ssl/unknown." },
+        { cmd: "openssl s_client -connect localhost:31790 -quiet", why: "Escolhi a 31790 porque o nmap mostrou a resposta dela: trocando os \\x20 por espaços, ela dizia para digitar a senha correta. O -quiet evitou um problema que explico abaixo." },
+        { cmd: "chmod 600 chave_bandit17\nssh -i chave_bandit17 -p 2220 bandit17@bandit.labs.overthewire.org", why: "A resposta foi uma chave SSH privada. Salvei no meu computador, ajustei as permissões e entrei como bandit17." }
+      ],
+      stuck: "Primeiro testei as portas com nc, sem descobrir antes o que cada uma falava. Depois, sem o -quiet, o s_client recebeu uma linha começando com k e entendeu como o comando KEYUPDATE, e a senha nunca chegou ao servidor. Na chave, esqueci o chmod e o SSH ignorou o arquivo.",
+      lesson: "Foi um pentest em miniatura: descoberta, enumeração, análise e exploração. Enumerar antes de atacar economiza horas. E a informação importante raramente vem destacada: estava num bloco de texto que parecia lixo."
+    },
+    en: {
+      goal: "Find, among ports 31000 to 32000, which service speaks SSL/TLS and returns the next level’s credential when given the current password.",
+      steps: [
+        { cmd: "nmap localhost -p 31000-32000", why: "Port scan: out of a thousand ports, five were open." },
+        { cmd: "nmap localhost -p 31000-32000 -sV", why: "-sV tries to identify the service on each port. Three were echo, which just repeats what it gets. Two spoke SSL: one ssl/echo and one ssl/unknown." },
+        { cmd: "openssl s_client -connect localhost:31790 -quiet", why: "I picked 31790 because nmap showed its reply: replacing the \\x20 with spaces, it asked for the correct password. -quiet avoided a problem I explain below." },
+        { cmd: "chmod 600 chave_bandit17\nssh -i chave_bandit17 -p 2220 bandit17@bandit.labs.overthewire.org", why: "The reply was a private SSH key. I saved it on my computer, fixed the permissions and logged in as bandit17." }
+      ],
+      stuck: "I first tested the ports with nc, without finding out what each one spoke. Then, without -quiet, s_client got a line starting with k and read it as the KEYUPDATE command, so the password never reached the server. With the key, I forgot chmod and SSH ignored the file.",
+      lesson: "It was a pentest in miniature: discovery, enumeration, analysis and exploitation. Enumerating before attacking saves hours. And the important information rarely stands out: it was in a block of text that looked like garbage."
+    }
+  },
+
+  "level-17-18": {
+    video: "",
+    pt: {
+      goal: "Encontrar a senha nova comparando dois arquivos quase idênticos, em que só uma linha mudou.",
+      steps: [
+        { cmd: "diff passwords.new passwords.old", why: "O diff compara os arquivos linha por linha e mostra só as diferenças. O < marca linhas do primeiro arquivo, e o > do segundo. Como passei o .new primeiro, a senha nova é a linha com <." }
+      ],
+      stuck: "Sem travamentos. O cuidado foi ler a saída pensando na ordem em que passei os arquivos.",
+      lesson: "Comparar versões é útil em pentest: arquivos de configuração, respostas de uma aplicação antes e depois de mudar um parâmetro, scans de dias diferentes. E ler a saída de uma ferramenta exige lembrar como você a chamou."
+    },
+    en: {
+      goal: "Find the new password by comparing two nearly identical files where only one line changed.",
+      steps: [
+        { cmd: "diff passwords.new passwords.old", why: "diff compares the files line by line and shows only the differences. < marks lines from the first file, and > from the second. Since I passed .new first, the new password is the line with <." }
+      ],
+      stuck: "No blockers. The care point was reading the output with the order I passed the files in mind.",
+      lesson: "Comparing versions is useful in pentesting: config files, an application’s responses before and after changing a parameter, scans from different days. And reading a tool’s output means remembering how you called it."
+    }
+  },
+
+  "level-18-19": {
+    video: "",
+    pt: {
+      goal: "Ler a senha num arquivo readme, mesmo sendo desconectado assim que faço login.",
+      steps: [
+        { cmd: "ssh -p 2220 bandit18@bandit.labs.overthewire.org \"ls\"", why: "O ssh aceita um comando no final. Ele entra, executa só aquele comando, mostra o resultado e sai, sem abrir um terminal interativo." },
+        { cmd: "ssh -p 2220 bandit18@bandit.labs.overthewire.org \"cat readme\"", why: "Com o nome do arquivo em mãos, li o conteúdo do mesmo jeito." }
+      ],
+      stuck: "Ao logar normalmente, eu era chutado na hora. A página explicava que o .bashrc foi alterado. Esse arquivo roda toda vez que um terminal interativo é aberto, então a saída foi não abrir um.",
+      lesson: "Quando a porta da frente está bloqueada, existe outra forma de entrar. Em pentest é comum ganhar uma shell limitada ou quebrada, e saber executar comandos de outras formas é uma habilidade real."
+    },
+    en: {
+      goal: "Read the password in a readme file, even though I get disconnected right after logging in.",
+      steps: [
+        { cmd: "ssh -p 2220 bandit18@bandit.labs.overthewire.org \"ls\"", why: "ssh accepts a command at the end. It logs in, runs only that command, shows the result and exits, without opening an interactive shell." },
+        { cmd: "ssh -p 2220 bandit18@bandit.labs.overthewire.org \"cat readme\"", why: "With the file name in hand, I read its contents the same way." }
+      ],
+      stuck: "Logging in normally kicked me out immediately. The level page explained that .bashrc had been modified. That file runs every time an interactive shell starts, so the way out was not to start one.",
+      lesson: "When the front door is blocked, there’s another way in. In pentesting it’s common to land a limited or broken shell, and knowing how to run commands in other ways is a real skill."
+    }
+  },
+
+  "level-19-20": {
+    video: "",
+    pt: {
+      goal: "Usar um programa com SUID na home para ler a senha do bandit20.",
+      steps: [
+        { cmd: "ls -l", why: "As permissões -rwsr-x--- mostram o s do SUID, com dono bandit20 e grupo bandit19. Então o programa roda como bandit20, e eu posso executá-lo." },
+        { cmd: "./bandit20-do", why: "Sem argumentos, ele explica que roda um comando como outro usuário." },
+        { cmd: "./bandit20-do whoami", why: "Confirmei: o whoami respondeu bandit20." },
+        { cmd: "cat /etc/bandit_pass/bandit20\n./bandit20-do cat /etc/bandit_pass/bandit20", why: "Direto, o cat deu Permission denied. Através do programa, rodou como bandit20 e mostrou a senha." }
+      ],
+      stuck: "Demorei para entender que o que vinha depois do ./bandit20-do podia ser qualquer comando, não só o whoami do exemplo.",
+      lesson: "Escalação de privilégio por binário SUID: mesmo comando, mesmo arquivo, resultado oposto, só porque mudou o usuário que executa. Num alvo real, isso começa com find / -perm -4000 e uma consulta ao GTFOBins."
+    },
+    en: {
+      goal: "Use a SUID program in the home directory to read bandit20’s password.",
+      steps: [
+        { cmd: "ls -l", why: "The permissions -rwsr-x--- show the SUID s, with owner bandit20 and group bandit19. So the program runs as bandit20, and I’m allowed to execute it." },
+        { cmd: "./bandit20-do", why: "With no arguments, it explains that it runs a command as another user." },
+        { cmd: "./bandit20-do whoami", why: "Confirmed: whoami answered bandit20." },
+        { cmd: "cat /etc/bandit_pass/bandit20\n./bandit20-do cat /etc/bandit_pass/bandit20", why: "Directly, cat returned Permission denied. Through the program, it ran as bandit20 and showed the password." }
+      ],
+      stuck: "It took me a while to understand that whatever came after ./bandit20-do could be any command, not just the whoami from the example.",
+      lesson: "Privilege escalation through a SUID binary: same command, same file, opposite result, just because the user running it changed. On a real target, this starts with find / -perm -4000 and a look at GTFOBins."
+    }
+  },
+
+  "level-20-21": {
+    video: "",
+    pt: {
+      goal: "Fazer um programa SUID se conectar a uma porta onde eu estou escutando e enviar a ele a senha atual.",
+      steps: [
+        { cmd: "./suconnect", why: "Ler a mensagem de uso: ele se conecta na porta indicada e, se receber a senha atual, devolve a próxima." },
+        { cmd: "nc -l 32000", why: "No terminal 1, criei um listener: o nc escutando numa porta escolhida por mim, acima de 1024 e livre." },
+        { cmd: "./suconnect 32000", why: "No terminal 2, rodei o programa apontando para o meu listener." },
+        { cmd: "<senha-atual>", why: "De volta ao terminal 1, colei a senha na conexão. A resposta chegou ali mesmo." }
+      ],
+      stuck: "Digitei 320000, que passa do limite de 65535 portas. O primeiro “Could not connect” veio porque o listener ainda não estava rodando. E colei a senha no terminal do programa, quando a conversa acontecia pelo terminal do listener.",
+      lesson: "Numa conexão existe quem escuta e quem conecta, e os dados viajam pela conexão, não pelo teclado de qualquer janela. Em pentest, é comum o alvo se conectar de volta na sua máquina, e você precisa estar escutando."
+    },
+    en: {
+      goal: "Make a SUID program connect to a port I’m listening on and send it the current password.",
+      steps: [
+        { cmd: "./suconnect", why: "Read the usage message: it connects to the given port and, if it receives the current password, sends back the next one." },
+        { cmd: "nc -l 32000", why: "In terminal 1, I set up a listener: nc waiting on a port I chose, above 1024 and free." },
+        { cmd: "./suconnect 32000", why: "In terminal 2, I ran the program pointing to my listener." },
+        { cmd: "<current-password>", why: "Back in terminal 1, I pasted the password into the connection. The reply arrived right there." }
+      ],
+      stuck: "I typed 320000, which is above the 65535 port limit. The first “Could not connect” happened because the listener wasn’t running yet. And I pasted the password into the program’s terminal, when the conversation was happening in the listener’s terminal.",
+      lesson: "In a connection, one side listens and the other connects, and data travels through the connection, not through whichever window you type in. In pentesting, it’s common for the target to connect back to your machine, and you need to be listening."
+    }
+  },
+
+  "level-21-22": {
+    video: "",
+    pt: {
+      goal: "Descobrir o que uma tarefa agendada no cron faz e usar isso para ler a senha do bandit22.",
+      steps: [
+        { cmd: "ls /etc/cron.d", why: "As configurações das tarefas agendadas ficam aqui. Uma delas tinha o nome do próximo nível." },
+        { cmd: "cat /etc/cron.d/cronjob_bandit22", why: "A linha mostrava que um script roda a cada minuto, indicado pelos cinco asteriscos, como o usuário bandit22." },
+        { cmd: "cat /usr/bin/cronjob_bandit22.sh", why: "O script dá chmod 644 num arquivo em /tmp, deixando ele legível para todos, e grava a senha do bandit22 dentro dele." },
+        { cmd: "cat /tmp/<arquivo-do-script>", why: "Li o arquivo pelo nome exato que aparecia no script." }
+      ],
+      stuck: "Interpretei o chmod como se ele mostrasse a permissão, mas ele altera. E não consegui listar o /tmp, mas listar e ler são permissões diferentes: sabendo o nome exato, consegui ler.",
+      lesson: "Tarefas agendadas costumam rodar com mais privilégio e entram no checklist de enumeração. A falha aqui é real: um processo com privilégio grava dado sensível num lugar que qualquer um lê. E esconder um arquivo não é protegê-lo."
+    },
+    en: {
+      goal: "Find out what a cron scheduled task does and use it to read bandit22’s password.",
+      steps: [
+        { cmd: "ls /etc/cron.d", why: "Scheduled task configs live here. One of them had the next level’s name." },
+        { cmd: "cat /etc/cron.d/cronjob_bandit22", why: "The line showed a script running every minute, marked by the five asterisks, as user bandit22." },
+        { cmd: "cat /usr/bin/cronjob_bandit22.sh", why: "The script runs chmod 644 on a file in /tmp, making it readable by everyone, and writes bandit22’s password into it." },
+        { cmd: "cat /tmp/<file-from-script>", why: "I read the file using the exact name shown in the script." }
+      ],
+      stuck: "I read chmod as if it showed permissions, but it changes them. And I couldn’t list /tmp, but listing and reading are different permissions: knowing the exact name, I could read it.",
+      lesson: "Scheduled tasks often run with higher privileges and belong on the enumeration checklist. The flaw here is real: a privileged process writes sensitive data somewhere anyone can read. And hiding a file isn’t protecting it."
+    }
+  }
 };
 
 /* ============================================================
